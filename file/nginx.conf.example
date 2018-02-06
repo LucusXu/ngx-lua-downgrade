@@ -1,0 +1,53 @@
+user  work work;
+worker_processes  auto;
+worker_rlimit_nofile 1000000;
+error_log  /home/work/logs/nginx/error.log debug;
+pid        /home/work/nginx/var/nginx.pid;
+
+## events configure
+events {
+    use epoll;
+    worker_connections  100000;
+}
+
+## http core configure ##
+http {
+    include        mime.types;
+    default_type   application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /home/work/logs/nginx/access.log  main;
+
+    # 开启lua代码cache
+    lua_code_cache on;
+	# lua project dir
+    lua_package_path             "/home/work/nginx/lua/downgrade/?.lua;/home/work/nginx/downgrade/anti/lualib/?.lua";
+    lua_package_cpath            "/home/work/nginx/lua/ext/?.so;/home/work/nginx/lualib/cjson.so";
+    lua_shared_dict countdict 100m;
+
+	# 下面三行是主要的入口配置
+	init_by_lua_file /home/work/nginx/lua/downgrade/init.lua;
+	access_by_lua_file	/home/work/nginx/lua/downgrade/access.lua;
+	log_by_lua_file	/home/work/nginx/lua/downgrade/log.lua;
+
+	init_by_lua '
+        rs = require "conf"
+        anti = require "anti"
+        require "file"
+        require "countLocal"
+        require "countDistribute"
+        require "operator"
+        require "table"
+        upstream = require "ngx.upstream"
+        mmh2 = require "murmurhash2"
+        redis = require "redis"
+        cjson = require "cjson"
+        lua_dict = require "lua_dict"
+	';
+
+    ## include vhost configure
+    include  /home/work/nginx/conf/vhost/*.conf;
+}

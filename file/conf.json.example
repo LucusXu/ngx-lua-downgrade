@@ -1,0 +1,47 @@
+{
+    "auto": {
+        "mode": "off",
+        "host_expire_time": 30,
+        "host_deny_threshold": 3,
+        "uri_expire_time": 30,
+        "uri_deny_threshold": 3,
+
+        "white_host": [
+            "www.lucus.com",
+            "img.lucus.com"
+        ],
+        "white_uri": [
+            "/uri/detail"
+        ],
+        "black_host": [
+            "test.lucus.com"
+        ],
+        "black_uri": [
+			"/app/test"
+		]
+    },
+
+    "common": {
+        "level": 0,
+        "white_host" :[
+            [
+                "www.lucus.com"
+			],
+            [],
+            []
+        ],
+        "white_uri" :[
+            [],
+            [],
+            []
+        ],
+        "black_host" :[
+            [],
+            [],
+            []
+        ],
+        "black_uri" :[
+            []
+        ]
+    }
+}
